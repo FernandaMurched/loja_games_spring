@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.generation.lojagames.model.Categoria;
 import com.generation.lojagames.model.Produto;
 import com.generation.lojagames.repository.CategoriaRepository;
 import com.generation.lojagames.repository.ProdutoRepository;
@@ -57,32 +58,31 @@ public class ProdutoController {
 	@PostMapping
 	public ResponseEntity<Produto> post(@Valid @RequestBody Produto produto) {
 
-		if (categoriaRepository.existsById(produto.getCategoria().getId())) {
+		Optional<Categoria> categoria = categoriaRepository.findById(produto.getCategoria().getId());
 
-			return ResponseEntity.status(HttpStatus.CREATED).body(produtoRepository.save(produto));
-
-		}
-
-		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A categoria não existe!", null);
-	}
-
-	@PutMapping
-	public ResponseEntity<Produto> put(@Valid @RequestBody Produto produto) {
-
-		if (produto.getId() == null)
-			return ResponseEntity.badRequest().build();
-
-		if (produtoRepository.existsById(produto.getId())) {
-
-			if (categoriaRepository.existsById(produto.getCategoria().getId()))
-
-				return ResponseEntity.status(HttpStatus.OK).body(produtoRepository.save(produto));
-
+		if (categoria.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A categoria não existe!", null);
-
 		}
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+		// Força a Categoria completa no Produto antes de salvar
+		produto.setCategoria(categoria.get());
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(produtoRepository.save(produto));
 	}
+
+	@PutMapping("/atualizar")
+	public ResponseEntity<Produto> put(@Valid @RequestBody Produto produto) {
+	    if (produto.getId() == null || !produtoRepository.existsById(produto.getId())) {
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    return categoriaRepository.findById(produto.getCategoria().getId())
+	        .map(categoria -> {
+	            produto.setCategoria(categoria);
+	            return ResponseEntity.ok(produtoRepository.save(produto));
+	        })
+	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "A categoria não existe!"));
+	} 
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)

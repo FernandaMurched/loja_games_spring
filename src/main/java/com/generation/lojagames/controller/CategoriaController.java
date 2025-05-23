@@ -73,7 +73,7 @@ public class CategoriaController {
 
 	}
 
-	// Buscar categorias por descrição
+	// Buscar categorias por descrição (exemplo: /descrição/aventura)
 	@GetMapping("/descricao/{descricao}")
 	public ResponseEntity<List<Categoria>> getByDescricao(@PathVariable String descricao) {
 		List<Categoria> lista = categoriaRepository.findAllByDescricaoContainingIgnoreCase(descricao);
@@ -83,7 +83,7 @@ public class CategoriaController {
 		return ResponseEntity.ok(lista);
 	}
 
-	// Buscar pro classificação
+	// Buscar por classificação (%2B ao invés de +, exemplo: 12+ > 12%2B)
 	@GetMapping("/classificacao/{classificacao}")
 	public ResponseEntity<List<Categoria>> getByClassificacao(@PathVariable String classificacao) {
 		List<Categoria> lista = categoriaRepository.findAllByClassificacaoContainingIgnoreCase(classificacao);
