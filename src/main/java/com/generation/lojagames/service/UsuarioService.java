@@ -106,6 +106,7 @@ public class UsuarioService {
 	}
 
 	private String gerarToken(String usuario) {
-		return "Bearer " + jwtService.generateToken(usuario);
+		// Correção removido o "Bearer " +
+		return jwtService.generateToken(usuario);
 	}
 }
