@@ -14,7 +14,7 @@ public class UserDetailsImpl implements UserDetails {
 
 	private String username;
 	private String password;
-	private List<GrantedAuthority> authorities;
+	//private List<GrantedAuthority> authorities;
 
 	public UserDetailsImpl(Usuario user) {
 		this.username = user.getUsuario();
@@ -26,8 +26,8 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-
-		return authorities;
+		// Removendo authorities; por List.of();
+		return List.of();
 	}
 
 	@Override
